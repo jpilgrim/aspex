@@ -1,5 +1,4 @@
-
-= Disclaimer
+# Disclaimer
 
 This is WORK IN PROGRESS!
 
@@ -7,7 +6,7 @@ This document specified the markdown language Spex with default extensions. The 
 The features described in this document link to github issues at https://github.com/jpilgrim/spex/issues . These issues may be not closed yet,
 meaning that the corresponding features are not implemented yet.
 
-= Overview
+# Overview
 
 Spex is an extensible markdown language and processor written in N4JS/JavaScript.
 The goal of Spex is to provide an unicode based language which is
@@ -36,15 +35,15 @@ Spex supports the notion scoping and fully (or partially) qualified names.
 The following snippet shows a simple Spex example using pre-defined extensions and links:
 
 ```spex
-= Main
+# Main
 
-== Intro
+## Intro
 This is an example to illustrate
 * basic formattings (headings, lists etc.)
 * how commands can be used
 * how linking is working
 
-== More
+## More
 As described in [Intro] this is an example. The main class is >Application, it contains a method
 >main. The algorithm is described in [Knuth1969]. [RPRJ-123] defines a requirement.
 
@@ -58,7 +57,7 @@ REQ RPRJ-123 (Version 1): Some Requirement
 ```
 
 
-= Character Codes
+# Character Codes
 
 Similar to Tex, Spex is based on the notion of characters with different categories. The following character 
 categories are the most important once:
@@ -95,7 +94,7 @@ categories known from Tex are used:
 
 These Tex categories are only recognized in Tex blocks, though.
 
-= Syntax notation
+# Syntax notation
 
 In the following, we use an EBNF to express the syntax rules. Due to the nature of markdown, 
 these rules are pragmatically extended to allow for defining more flexible behavior. In general,
@@ -123,7 +122,7 @@ EBNF:
 For the sake if simplicity we ignore escaped characters. An escaped character is treated as LETTER 
 unless otherwise specified.	
 
-= Document Structure
+# Document Structure
 
 A Spex document consists of a elements.
 An element has a name and may has attributes and may contain other elements. We call the contained elements children and the
@@ -164,7 +163,7 @@ REQ SPEX-101: Core document structure
 In these rules we introduces two non-terminals: `extBlock`and `extInline`.
 This refers to extensions in general as specified in the next section.
 
-= Extensions
+# Extensions
 
 Extensions are additions to the Spex system, written in JavaScript (or N4JS). The need to 
 implement the interface [src:Extension].
@@ -212,7 +211,7 @@ REQ SPEX-201: Basic Extension Syntax
 		cmdInline:	name=LETTER* «extension specific content» ':' «extension specific content»
 		cmdInline:	control=(OTHER «extension specific characters») «extension specific content»
 
-== Standard Attribute Definitions
+## Standard Attribute Definitions
 
 It is recommended to use the following rules for attributes in general:
 
@@ -235,7 +234,7 @@ EBNF:
 	
 Digit or prefixed ids are recognized by the linking extension and enable very short references.	
 
-== Standard Command Format
+## Standard Command Format
 
 Standard block commands use a fixed syntax pattern as follows:
 
@@ -263,7 +262,7 @@ REQ SPEX-1201 Standard Block Command
 This standard block command starts with the optional id and attributes, followed by the name of the
 extension in upper case letters and a colon. If the block has a title, then this is the text
 in following the colon. Otherwise, the text after the colon is the first paragraph of the element.
-	
+		
 SAMPLE:
 	The following snippet shows a requirement block with an prefix id, a version and a title:
 	
@@ -280,21 +279,21 @@ SAMPLE:
 	   
 Extensions may change this default behavior, e.g., modifies the indent level of the block.
 
-= Macros
+# Macros
 
 Macros are similar to extensions except that they are written using the Spex extension block `SPEX_MACRO`.
 
 TODO: Specify macros, possible macros: alias, rename, block
 
 
-= Linking
+# Linking
 
 Linking consists of two parts: an anchor and a link. 
 Anchors are implicitly defined by certain elements, they have a name (which is an ID, a title or is 
 by derived from other values depending on the extension creating an anchor).
 For linking it makes no difference how the anchor is defined. The extension creating the anchor also defines the type of an anchor.
 
-== Anchors, Links and Scopes
+## Anchors, Links and Scopes
 
 Unless otherwise defined by an extension, anchors are scoped. 
 Certain elements may define a scope, either for its children or for its succeeding siblings. The name of the scope simply is the name of
@@ -321,11 +320,11 @@ If an anchor is not referenced by the FQN, which needs to be unique, the anchor 
 
 SAMPLE 1: Given the following snippet:
 	```
-	= Big Equations
-	== Pythagoras
+	# Big Equations
+	## Pythagoras
 	EQ 1: $a^2 + b^2 = c^2$
 	Formular [1] is known from geometry.
-	== Einstein
+	## Einstein
 	EQ 1: $e = m * c^2$
 	Formular [eq:1] is known from physics. It also contains a $c^2$ as [-1/1]
 	```
@@ -339,7 +338,7 @@ enabling indexes.
 
 References are created by extension, see below for details.
 
-== Dictionaries and External Links
+## Dictionaries and External Links
 
 So far all anchors were defined in Spex documents directly. Often it is required to link to elements "outside" the document.
 
@@ -360,14 +359,14 @@ source code located in a code repository, to the API documentation of an element
 TODO: Dictionaries similar to AsciiSpec linking
 
 
-= Counters
+# Counters
 
 Spex supports counters. A counter is a named integer variable. An extension may assign the current value of a named counter to an element's attribute,
 incrementing the counter automatically or reset a counter. The value of the counter can be used to compute numbers of list items, headings, 
 or to make unique IDs (or names) of elements. The counters are used by the extensions internally, see API for details.
  
 
-= Output
+# Output
 
 Spex focuses on high-quality HTML output (with JavaScript for screen and special formatting for print). The parser initially creates a simple tree
 with elements named according to the names of the extensions (or the elements created as specified). Unless specified otherwise, these elements are
@@ -376,11 +375,11 @@ is computed from the title.
 
 TODO: how to compute titles.
 
-= Built-In Extensions
+# Built-In Extensions
 
-== Headings
+## Headings
 
-Spex supports so-called ATX headings, using '=' as control sequence. The number of '=' characters defines the level of the heading.
+Spex supports so-called ATX headings, using '#' as control sequence. The number of '#' characters defines the level of the heading.
 
 REQ SPEX-601: ATX Headings
 	TASK:#6
@@ -389,7 +388,7 @@ REQ SPEX-601: ATX Headings
 		headingATX := ^ level=#'#' space title
 
 
-== Lists
+## Lists
 
 There are three kind of lists supported by default: unordered lists, ordered list and description lists.
 
@@ -434,7 +433,7 @@ REQ SPEX-901: Description Lists
 		descriptionTitle: LETTER+ (SPACE LETTER+)*
 
 
-== Generic References
+## Generic References
 
 Spex comes with a built-in extension enabling generic references. These references are placed in square brackets and enable linking via FQN or PQN.
 The output of the link is defined by the extension defining the anchor type. The example [sample:-1] shows this kind of references.
@@ -449,7 +448,7 @@ REQ SPEX-1001:
 The generic reference may define an optional title which is used to create the link text. How the title is used depends on the extension defining the type, however.	  
 
 
-== HTTP References
+## HTTP References
 
 REQ SPEX-1002:
 	TASK:#10
@@ -458,7 +457,7 @@ REQ SPEX-1002:
 	generic link format.
 
 
-== Images
+## Images
 
 Images are included by the image extension. It follows the [Standard Command Format] with id and attributes:
 
@@ -468,7 +467,7 @@ REQ SPEX-1101
 	EBNF: Image Extension
 		image: 'IMAGE' idvalue? attributes ':' «path to image»
 		
-== Todo Blocks
+## Todo Blocks
 
 Todo blocks are standard command blocks. They are visually marked as "to do".
 
@@ -477,14 +476,14 @@ REQ SPEX-1202 Todo Extension
 	
 	The Todo extension adds a standard block command `TODO` without title and without attributes.		 
 
-== Task References
+## Task References
 
 Task references are references to tasks (or issues) managed by an external task tracking system such as Jira or GitHub.
 
 TODO: Describe task references as used in this document, e.g. `TASK: #1, #13`
 
 
-== Source References
+## Source References
 
 TODO:
 	For links to source code, a typed reference extension is provided. It assumes that source code element names contain no spaces or other "problematic" characters.
@@ -498,27 +497,27 @@ TODO:
 
 
 
-== Tables
+## Tables
 
 TODO: describe tables
 
 
-== Forms
+## Forms
 
 TODO: E.g. use case, properties etc.
 
-== Decorations
+## Decorations
 
-= Math and Tex Support
+# Math and Tex Support
 
 TODO: $some_1 math$
 
-== Tagged Blocks
+## Tagged Blocks
 
 TODO: REQ, INFO, WARNING, TODO, etc.
 
 
-== Modules
+## Modules
 
 TODO:
 	Spex support splitting up a document into modules and combining these modules via the "include" extension. This extension simply includes the referenced
