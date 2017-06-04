@@ -1,10 +1,10 @@
-= Disclaimer
+# Disclaimer
 
 This is WORK IN PROGRESS. That is, although some basic parts are already working,
 most features described here or in the specification are not working yet.
 As soon as a first usable version is ready, this disclaimer is to be removed.
 
-= Overview
+# Overview
 
 Spex is an extensible markdown language and processor written in N4JS (<https://numberfour.github.io/n4js/>). N4JS is an extension of JavaScript, and the code is transpiled to plain JavaScript. Thus extensions can be written in N4JS or JavaScript (or other languages transpiling to JavaScript).
 
@@ -32,15 +32,15 @@ Spex supports the notion scoping and fully (or partially) qualified names.
 The following snippet shows a simple Spex example using pre-defined extensions and links:
 
 ```spex
-= Main
+# Main
 
-== Intro
+## Intro
 This is an example to illustrate
 * basic formattings (headings, lists etc.)
 * how commands can be used
 * how linking is working
 
-== More
+## More
 As described in [Intro] this is an example. The main class is >Application, it contains a method
 >main. The algorithm is described in [Knuth1969]. [RPRJ-123] defines a requirement.
 
@@ -54,12 +54,12 @@ REQ RPRJ-123 (Version 1): Some Requirement
 ```
 
 
-= Frequently Asked Questions
+# Frequently Asked Questions
 
 Question: When will it be usable?
 Answer: As soon as the Spex specification found at <https://github.com/jpilgrim/spex/blob/master/spex.doc/index.spex> is successfully processed and the result is available via the GitHub pages.
 
-= License
+# License
 
  Copyright (c) 2017 Jens von Pilgrim.
  All rights reserved. This program and the accompanying materials
