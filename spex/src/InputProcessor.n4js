@@ -1,10 +1,11 @@
 import {CatcodeMap} from "Category";
+import {DefaultExtensions} from "DefaultExtensions";
 import {Extension} from "Extension";
 import {Element} from "Nodes";
 
-export public interface ~ExtensionElement {
+export public interface ~ActiveExtension<T extends Element> {
 	extension: Extension;
-	element?: Element;
+	element?: T;
 }
 
 export public class ProcessorState {
@@ -25,10 +26,7 @@ export public class ProcessorState {
 	inlineCtrlExtensions = new Map<string, [Extension]>();
 
 	@Final
-	openInlineExtensions: [ExtensionElement] = [];
-
-	@Final
-	openBlockExtensions: [ExtensionElement] = [];
+	activeExtensions: [ActiveExtension<Element>] = [];
 
 	public addExtensions(extensions: [Extension]) {
 		for (let ext of extensions) {
@@ -67,25 +65,32 @@ export public class ProcessorState {
 			}
 		}
 	}
-
-	get lastOpenInlineExtensions(): ExtensionElement {
-		return this.openInlineExtensions ? this
-			.openInlineExtensions[this.openInlineExtensions.length - 1] : undefined;
+	
+	get activeExtension(): ActiveExtension<Element> {
+		return this.activeExtensions[this.activeExtensions.length-1]
 	}
 
-	get lastOpenBlockExtensions(): ExtensionElement {
-		return this.openBlockExtensions ? this
-			.openBlockExtensions[this.openBlockExtensions.length - 1] : undefined;
+	get activeInlineExtension(): ActiveExtension<Element> {
+		let active = this.activeExtension;
+		if (active.extension.block) {
+			return undefined;
+		}
+		return active;
 	}
+	
+}
 
+export public class DefaultProcessorState extends ProcessorState {
+	
+	constructor() {
+		this.addExtensions(new DefaultExtensions().extensions);
+	}
 }
 
 export public class InputProcessor {
 
-	@Final
+	@Inject 
 	protected processorState: ProcessorState;
-	constructor(processorState: ProcessorState) {
-		this.processorState = processorState;
-	}
+	
 
 }
