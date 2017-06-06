@@ -130,7 +130,7 @@ export public class Parser extends InputProcessor {
 				this.createElement(this.paragraphHandler);
 			}
 		}
-		return activeExt as  ActiveExtension<CDATAContainer>;
+		return this.processorState.activeExtension as  ActiveExtension<CDATAContainer>;
 	} 
 
 	private closeInlineElements() {
@@ -143,7 +143,7 @@ export public class Parser extends InputProcessor {
 	createExtensionContext(): ExtensionContext {
 		return new ExtensionContext({
 				indentLevel: this.indentLevel,
-				currentElement: this.processorState.activeExtension.element,
+				currentElement: this.processorState.activeExtension ? this.processorState.activeExtension.element : undefined,
 				processorState: this.processorState,
 				inputSource: this.lexer.is
 			});

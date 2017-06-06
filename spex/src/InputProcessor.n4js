@@ -67,12 +67,12 @@ export public class ProcessorState {
 	}
 	
 	get activeExtension(): ActiveExtension<Element> {
-		return this.activeExtensions[this.activeExtensions.length-1]
+		return this.activeExtensions ? this.activeExtensions[this.activeExtensions.length-1] : undefined;
 	}
 
 	get activeInlineExtension(): ActiveExtension<Element> {
 		let active = this.activeExtension;
-		if (active.extension.block) {
+		if (active && active.extension.block) {
 			return undefined;
 		}
 		return active;

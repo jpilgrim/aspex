@@ -117,7 +117,7 @@ export public abstract class CDATAContainer extends Element {
 		} else {
 			cdata = new CDATA(this);
 		}
-		cdata.addCDATA(s);
+		cdata.add(s);
 	}
 
 }
@@ -145,7 +145,7 @@ export public class CDATA extends Node {
 		return this.content;
 	}
 
-	public addCDATA(s: string) {
+	public add(s: string) {
 		this.content = this.content + s;
 	}
 

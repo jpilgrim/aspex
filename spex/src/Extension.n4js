@@ -165,7 +165,7 @@ export public class NamedBlockCommand extends AbstractExtension {
 	 */
 	@Override
 	public createElement(context: ExtensionContext): Element {
-		return new Block(this.name, context.indentLevel, context.currentElement);
+		return new Block(this.name, context.indentLevel+1, context.currentElement);
 	}
 	
 
