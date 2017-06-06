@@ -1,7 +1,7 @@
 INFO: Hello
 _______________________________________
 <spex>
-<INFO>
+	<INFO>
 	<p>Hello</p>
-</INFO>
+	</INFO>
 </spex>

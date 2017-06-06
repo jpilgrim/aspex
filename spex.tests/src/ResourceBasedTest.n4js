@@ -51,7 +51,7 @@ interface IResourceBasedTest {
 		// console.log(fullPath);
 		let s = await readFile(fullPath, {encoding: 'utf-8'});
 		let [source, expected] = s.split(/\n__________________*\n/);
-		return {source: source, expected: expected};
+		return {source: source, expected: expected.replace(/\t/g, "    ")};
 	}
 
 	protected parse(src: string): Document {
@@ -60,7 +60,8 @@ interface IResourceBasedTest {
 		return doc;
 	}
 	
-	async doTest() {
+	@Test
+	async test() {
 		// console.log("run test " + this.name)
 		let sae = await this.loadSourceAndExpectation(this.name);
 		// console.log(sae.source);
@@ -93,13 +94,7 @@ export public abstract class ResourceBasedTest implements IResourceBasedTest {
 	@Parameter
     @Override
     public name: string
-    
-
-	
-	@Test
-	public async test() {
-		await this.doTest();
-	}
+    	
 }
 
 @GenerateInjector()
@@ -114,10 +109,5 @@ export public abstract class ResourceBasedCoreTest implements IResourceBasedTest
     @Override
     public name: string
     
-
 	
-	@Test
-	public async test() {
-		await this.doTest();
-	}
 }

@@ -1,4 +1,7 @@
 
+export public enum ElementType {
+	BLOCK, INLINE, PAR
+}
 
 export public abstract class Node {
 
@@ -61,7 +64,10 @@ export public abstract class Element extends Node {
 			parts.push(">");
 			parts.push(this.nodes.map((c, i) => {
 					if (!(c instanceof CDATA || i > 0)) {
-						return "\n" + TAB.repeat(this.indentLevel) + c.toXML();
+						if (c instanceof Element)
+							return "\n" + TAB.repeat((c as Element).indentLevel) + c.toXML();
+						else 
+							return "\n" + TAB.repeat(this.indentLevel) + c.toXML();
 					} else {
 						return c.toXML();
 					}
@@ -83,6 +89,8 @@ export public abstract class Element extends Node {
 		if (this.parent) return this.parent.block;
 		return undefined;
 	}
+	
+	public abstract type(): ElementType
 
 }
 
@@ -97,6 +105,11 @@ export public class Block extends Element {
 	@Override
 	public get block(): Block {
 		return this;
+	}
+	
+	@Override
+	public type(): ElementType {
+		return ElementType.BLOCK
 	}
 }
 
@@ -126,14 +139,22 @@ export public abstract class CDATAContainer extends Element {
  * An inline element may contain CDATA or other inline elements, 
  * but not blocks, paragraphs or lines.
  */
-export public class Inline extends CDATAContainer {}
+export public class Inline extends CDATAContainer {
+	@Override
+	public type(): ElementType {
+		return ElementType.INLINE
+	}
+}
 
 /**
  * A paragraph can only contain CDATA or inline elements, but no block elements nor
  * other paragraphs. 
  */
 export public class Paragraph extends CDATAContainer {
-	
+	@Override
+	public type(): ElementType {
+		return ElementType.PAR
+	}
 }
 
 

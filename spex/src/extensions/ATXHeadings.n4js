@@ -1,6 +1,7 @@
 import {AbstractExtension} from "Extension";
 import {ExtensionContext} from "Extension";
 import {Element} from "Nodes";
+import {ElementType} from "Nodes";
 import {Paragraph} from "Nodes";
 
 
@@ -9,6 +10,11 @@ export public class ATXHeading extends AbstractExtension {
 	@Override
 	public get ctrlStart(): string {
 		return "#"
+	}
+	
+	@Override
+	public get elementType(): ElementType {
+		return ElementType.PAR
 	}
 
 	@Override

@@ -12,6 +12,9 @@ import {Block} from "Nodes";
 import {CDATAContainer} from "Nodes";
 import {Document} from "Nodes";
 import {Token} from "Token";
+import {ElementType} from "Nodes";
+import {N4Injector} from "n4js/lang/N4Injector";
+import {ProcessorState} from "InputProcessor";
 
 function last(s: string): string {
 	if (s) {
@@ -42,8 +45,18 @@ export public class Parser extends InputProcessor {
 	eolCount: int = 0;
 	indentLevel: int = 0;
 
+	@Inject injector: N4Injector
+	
+	// workaround because @PerInjectionSingleton not implemented!
+	resetState() {
+		this.processorState = this.injector.create(ProcessorState);
+		this.lexer.processorState = this.processorState; 		
+	}
+
 	parse(...inputSources: InputSource): Document {
 		this.lexer.addInputSource(inputSources);
+		this.resetState();
+		
 		let tokenEntry: IteratorEntry<Token>;
 		this.createElement(this.documentHandler);
 		let document = this.processorState.activeExtension.element as Document;
@@ -74,8 +87,10 @@ export public class Parser extends InputProcessor {
 				if (activeExt.element) { // close this element
 					this.closeElement();
 				} else { // create new element
-					if (activeExt.extension.block) {
+					if (activeExt.extension.elementType!=ElementType.INLINE) {
 						this.popToBlock();
+					} else {
+						this.ensureCDATAContainer();
 					}
 					activeExt.element = activeExt.extension.createElement(this.createExtensionContext());
 					this.processorState.activeExtensions.push(activeExt);
@@ -141,9 +156,12 @@ export public class Parser extends InputProcessor {
 
 
 	createExtensionContext(): ExtensionContext {
+		
+		let currentElement = this.processorState.activeExtension ? this.processorState.activeExtension.element : undefined;
+		let indentLevel = currentElement ? Math.max(currentElement.indentLevel, this.indentLevel) : this.indentLevel;
 		return new ExtensionContext({
-				indentLevel: this.indentLevel,
-				currentElement: this.processorState.activeExtension ? this.processorState.activeExtension.element : undefined,
+				indentLevel: indentLevel,
+				currentElement: currentElement,
 				processorState: this.processorState,
 				inputSource: this.lexer.is
 			});
