@@ -1,0 +1,19 @@
+import {ATXHeading} from "extensions/ATXHeadings";
+import {Assert} from "n4/mangel/assert/Assert";
+
+export public class ATXHeadingsTests {
+
+	@Test
+	testHeadingLevelPattern() {
+		let atxh = new ATXHeading();
+		Assert.equal(atxh.matchCtrlStart("Hello"), 0);
+		Assert.equal(atxh.matchCtrlStart("# Hello"), 1);
+		Assert.equal(atxh.matchCtrlStart("## Hello"), 2);
+		Assert.equal(atxh.matchCtrlStart("### Hello"), 3);
+		Assert.equal(atxh.matchCtrlStart("#### Hello"), 4);
+		Assert.equal(atxh.matchCtrlStart("##### Hello"), 5);
+		Assert.equal(atxh.matchCtrlStart("###### Hello"), 6);
+		Assert.equal(atxh.matchCtrlStart("####### Hello"), 0);
+	}
+
+}

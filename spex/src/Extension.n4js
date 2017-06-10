@@ -45,6 +45,45 @@ export public interface ~ElementProvider {
 	closeElement(element: Element, context: ExtensionContext)
 }
 
+/**
+ * Defines how the end of an extension is detected by the lexer and parser.
+ * 
+ * Except for the CTRL end, the end of the extension is detected by the parser and
+ * the characters signaling the end are not consumed by the extension. For 
+ * extensions/elements ending with CTRL, the end is detected by the lexer and
+ * the control sequence ending the element is consumed by the extension element (it 
+ * becomes part of the CTRL sequence).
+ */
+@StringBased
+export public enum ExtensionEndMarker {
+	/**
+	 * None end marker is used for blocks or paragraphs. The end of both
+	 * element types is detected implicitly by the parser via a changed
+	 * indentation level (block) or by empty lines or other elements ending
+	 * a paragraph.
+	 */
+	NONE,
+	/**
+	 * Usually for inline elements, ends with an arbitrary sequence of characters
+	 * starting with a control character.
+	 * 
+	 * The end of the extension is detected by the lexer.
+	 */
+	CTRL,
+	/**
+	 * Usually for line elements, ends with the end of line.
+	 * 
+	 * The end of the extension is detected by the lexer.
+	 */
+	EOL,
+	/**
+	 * Usually for inline elements, ends with a space (or EOL) character.
+	 * 
+	 * The end of the extension is detected by the lexer.
+	 */
+	SPACE
+}
+
 export public interface ~Extension extends ElementProvider {
 
 	/**
@@ -62,7 +101,13 @@ export public interface ~Extension extends ElementProvider {
 	 * Returns element type.
 	 */
 	get elementType(): ElementType
-	
+
+	/**
+	 * Returns the end marker type, that is, how the lexer and parser detect the end
+	 * of the extension region.
+	 */
+	get endMarker(): ExtensionEndMarker
+
 	/**
 	 * Control-character(s) which is used to identify whether ctrlMatch is called for further evaluation. 
 	 * If ctrlStart is undefined or empty, the extension can only be referenced by name. The returned
@@ -91,7 +136,6 @@ export public interface ~Extension extends ElementProvider {
 	 */
 	matchCtrlEnd(line: string): int
 
-	
 }
 
 /**
@@ -102,25 +146,25 @@ export public abstract class AbstractExtension implements Extension {
 	/** Returns false by default. */
 	@Override
 	public get refByName(): boolean {
-		return false
+		return false;
 	}
 
 	/** Returns undefined by default, i.e., extension cannot be referenced by control sequence. */
 	@Override
 	public get ctrlStart(): string {
-		return undefined
+		return undefined;
 	}
 
 	/** Returns 0 by default. */
 	@Override
 	public matchCtrlStart(line: string): int {
-		return 0
+		return 0;
 	}
 
 	/** Returns undefined by default, i.e., extension has no explicit end character. */
 	@Override
 	public get ctrlEnd(): string {
-		return undefined
+		return undefined;
 	}
 
 	/**
@@ -128,10 +172,9 @@ export public abstract class AbstractExtension implements Extension {
 	 */
 	@Override
 	public matchCtrlEnd(line: string): int {
-		return 0
+		return 0;
 	}
 
-	
 	/**
 	 * Does nothing by default.
 	 */
@@ -152,51 +195,63 @@ export public class NamedBlockCommand extends AbstractExtension {
 
 	@Override
 	public get refByName(): boolean {
-		return true
+		return true;
 	}
-	
+
 	@Override
 	public get elementType(): ElementType {
-		return ElementType.BLOCK
+		return ElementType.BLOCK;
 	}
-	
+
+	@Override
+	public get endMarker(): ExtensionEndMarker {
+		return ExtensionEndMarker.NONE;
+	}
+
 	/**
 	 * Creates element with name and appends it to the parent element with given indentation.
 	 */
 	@Override
 	public createElement(context: ExtensionContext): Element {
-		return new Block(this.name, context.indentLevel+1, context.currentElement);
+		return new Block(this.name, context.indentLevel + 1, context.currentElement);
 	}
-	
 
 }
 
-
 export public class InlineFormatting extends AbstractExtension {
-	
-	@Final ctrlChar: string;
+
+	@Final
+	ctrlChar: string;
+
 	@Override
-	@Final public name: string;
-	
+	@Final
+	public name: string;
+
 	constructor(ctrlChar: string, name: string) {
 		this.ctrlChar = ctrlChar;
 		this.name = name;
 	}
-	
+
 	@Override
 	public get elementType(): ElementType {
-		return ElementType.INLINE
+		return ElementType.INLINE;
 	}
-	
+
+	@Override
+	public get endMarker(): ExtensionEndMarker {
+		return ExtensionEndMarker.CTRL;
+	}
+
 	@Override
 	public get ctrlStart(): string {
 		return this.ctrlChar;
 	}
+
 	@Override
 	public get ctrlEnd(): string {
 		return this.ctrlChar;
 	}
-	
+
 	@Override
 	public matchCtrlStart(line: string): int {
 		if (line.startsWith(this.ctrlStart)) {
@@ -217,49 +272,70 @@ export public class InlineFormatting extends AbstractExtension {
 }
 
 export public class DocumentHandler extends AbstractExtension {
+
 	@Override
 	public get name(): string {
 		return "p";
 	}
+
 	@Override
 	public createElement(context: ExtensionContext): Element {
-		return new Document(); 
+		return new Document();
 	}
-	
+
 	@Override
 	public get elementType(): ElementType {
 		return ElementType.BLOCK;
 	}
+
+	@Override
+	public get endMarker(): ExtensionEndMarker {
+		return ExtensionEndMarker.NONE;
+	}
 }
 
 export public class ParagraphHandler extends AbstractExtension {
+
 	@Override
 	public get name(): string {
 		return "p";
 	}
+
 	@Override
 	public createElement(context: ExtensionContext): Element {
 		return new Paragraph("p", context.indentLevel, context.currentElement);
 	}
-	
+
 	@Override
 	public get elementType(): ElementType {
-		return ElementType.PAR
+		return ElementType.PAR;
+	}
+
+	@Override
+	public get endMarker(): ExtensionEndMarker {
+		return ExtensionEndMarker.NONE;
 	}
 }
 
 export public class PreformattedHandler extends AbstractExtension {
+
 	@Override
 	public get name(): string {
 		return "pre";
 	}
+
 	@Override
 	public createElement(context: ExtensionContext): Element {
 		return new Paragraph("pre", context.indentLevel, context.currentElement);
 	}
-	
+
 	@Override
 	public get elementType(): ElementType {
-		return ElementType.PAR
+		return ElementType.PAR;
+	}
+
+	@Override
+	public get endMarker(): ExtensionEndMarker {
+		return ExtensionEndMarker.NONE;
 	}
 }

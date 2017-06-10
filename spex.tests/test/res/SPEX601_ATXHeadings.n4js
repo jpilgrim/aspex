@@ -1,0 +1,18 @@
+import {ResourceBasedTest} from "ResourceBasedTest";
+
+
+export public class SPEX601_ATXHeadings extends ResourceBasedTest {
+
+	@Parameters("[{index}] {0}")
+    public static getSomeParameters() {
+        return ["levelsSeparatedByEmptyLine",
+        	"levelsSeparatedByEOL",
+        	"headingsWithContentSeparatedByEmptylines",
+        	"headingsWithContentSeparatedByEOL",
+        	"headingsMixed_1"
+        ].map(s=>[s]);
+    }
+    
+    
+	
+}

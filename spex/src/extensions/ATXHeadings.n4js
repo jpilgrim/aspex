@@ -1,5 +1,6 @@
 import {AbstractExtension} from "Extension";
 import {ExtensionContext} from "Extension";
+import {ExtensionEndMarker} from "Extension";
 import {Element} from "Nodes";
 import {ElementType} from "Nodes";
 import {Paragraph} from "Nodes";
@@ -16,6 +17,13 @@ export public class ATXHeading extends AbstractExtension {
 	public get elementType(): ElementType {
 		return ElementType.PAR
 	}
+
+	@Override
+	public get endMarker(): ExtensionEndMarker {
+		return ExtensionEndMarker.EOL;
+	}
+	
+	
 
 	@Override
 	public get name(): string {
@@ -37,7 +45,7 @@ export public class ATXHeading extends AbstractExtension {
 
 	@Override
 	public createElement(context: ExtensionContext): Element {
-		let level = this.matchCtrlStart(context.restOfLine);
-		return new Paragraph("H" + level, context.indentLevel, context.currentElement);
+		let level = this.matchCtrlStart(context.line);
+		return new Paragraph("h" + level, context.indentLevel, context.currentElement);
 	}
 }

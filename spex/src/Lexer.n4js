@@ -1,6 +1,7 @@
 import {Category} from "Category";
 import {CategorySwitch} from "Category";
 import {Extension} from "Extension";
+import {ActiveExtension} from "InputProcessor";
 import {InputProcessor} from "InputProcessor";
 import {InputLocation} from "InputSource";
 import {InputSource} from "InputSource";
@@ -8,7 +9,6 @@ import {Element} from "Nodes";
 import {CharacterToken} from "Token";
 import {ExtensionToken} from "Token";
 import {Token} from "Token";
-import {ActiveExtension} from "InputProcessor";
 
 export public class Lexer extends InputProcessor implements Iterator<Token> {
 
