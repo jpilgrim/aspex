@@ -4,12 +4,21 @@ import {ExtensionEndMarker} from "Extension";
 import {Element} from "Nodes";
 import {ElementType} from "Nodes";
 import {Paragraph} from "Nodes";
+import {Category} from "Category";
 
 
 export public class ATXHeading extends AbstractExtension {
+	
+	const ATXStartRegEx = /^#{1,6}\s/
+	const ATXEndRegEx = /^#+\s*$/
 
 	@Override
 	public get ctrlStart(): string {
+		return "#"
+	}
+
+	@Override
+	public get ctrlEnd(): string {
 		return "#"
 	}
 	
@@ -34,18 +43,36 @@ export public class ATXHeading extends AbstractExtension {
 	 * Returns level of heading (1-6).
 	 */
 	@Override
-	public matchCtrlStart(line: string): int {
-		let res = line.match(/^#{1,6}\s/);
+	public matchStart(context: ExtensionContext): int {
+		if (context.indentLevel>0) {
+			return 0;
+		}
+		let length = this.findMatch(context.restOfLineWithCtrl, ATXHeading.ATXStartRegEx);
+		return length -1;
+	}
+	
+	@Override
+	public matchEnd(context: ExtensionContext): int {
+		if (context.previousRawToken.category!=Category.SPACE) {
+			return 0;
+		}
+		return this.findMatch(context.restOfLineWithCtrl, ATXHeading.ATXEndRegEx);
+	}
+	
+	findMatch(line: string, re: RegExp): int	{
+		let res = line.match(re);
 		// [ '###### ', index: 0, input: '###### Hello' ]
 		if (res) {
-			return res[0].length - 1;
+			return res[0].length;
 		}
 		return 0;
 	}
-
+	
 	@Override
 	public createElement(context: ExtensionContext): Element {
-		let level = this.matchCtrlStart(context.line);
+		let level = context.processorState.currentToken.rawValue.length;
 		return new Paragraph("h" + level, context.indentLevel, context.currentElement);
 	}
+	
+	
 }

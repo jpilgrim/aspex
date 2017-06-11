@@ -3,17 +3,24 @@ import {Assert} from "n4/mangel/assert/Assert";
 
 export public class ATXHeadingsTests {
 
+	atxh = new ATXHeading();
+	
 	@Test
 	testHeadingLevelPattern() {
-		let atxh = new ATXHeading();
-		Assert.equal(atxh.matchCtrlStart("Hello"), 0);
-		Assert.equal(atxh.matchCtrlStart("# Hello"), 1);
-		Assert.equal(atxh.matchCtrlStart("## Hello"), 2);
-		Assert.equal(atxh.matchCtrlStart("### Hello"), 3);
-		Assert.equal(atxh.matchCtrlStart("#### Hello"), 4);
-		Assert.equal(atxh.matchCtrlStart("##### Hello"), 5);
-		Assert.equal(atxh.matchCtrlStart("###### Hello"), 6);
-		Assert.equal(atxh.matchCtrlStart("####### Hello"), 0);
+		this.assertStart("Hello", -1);
+		this.assertStart("# Hello", 1);
+		this.assertStart("## Hello", 2);
+		this.assertStart("### Hello", 3);
+		this.assertStart("#### Hello", 4);
+		this.assertStart("##### Hello", 5);
+		this.assertStart("###### Hello", 6);
+		this.assertStart("####### Hello", -1);
 	}
+	
+	assertStart(sequence: string, length: int) {
+		Assert.equal(this.atxh.findMatch(sequence, ATXHeading.ATXStartRegEx)-1, length);		
+	}
+	
+	
 
 }

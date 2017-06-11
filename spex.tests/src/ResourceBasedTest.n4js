@@ -15,7 +15,7 @@ export public interface ~SourceAndExpectation {
 	expected: string;
 }
 
-interface IResourceBasedTest {
+export interface IResourceBasedTest {
 	
 	get injector(): N4Injector;
 	get name(): string;

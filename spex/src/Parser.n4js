@@ -1,21 +1,20 @@
 import {Category} from "Category";
 import {DocumentHandler} from "Extension";
 import {Extension} from "Extension";
-import {ExtensionContext} from "Extension";
+import {ExtensionEndMarker} from "Extension";
 import {ParagraphHandler} from "Extension";
 import {PreformattedHandler} from "Extension";
-import {ActiveExtension} from "InputProcessor";
-import {InputProcessor} from "InputProcessor";
 import {InputSource} from "InputSource";
 import {Lexer} from "Lexer";
 import {Block} from "Nodes";
 import {CDATAContainer} from "Nodes";
 import {Document} from "Nodes";
-import {Token} from "Token";
 import {ElementType} from "Nodes";
+import {Processor} from "Processor";
+import {ActiveExtension} from "ProcessorState";
+import {ProcessorState} from "ProcessorState";
+import {Token} from "Token";
 import {N4Injector} from "n4js/lang/N4Injector";
-import {ProcessorState} from "InputProcessor";
-import {ExtensionEndMarker} from "Extension";
 
 function last(s: string): string {
 	if (s) {
@@ -31,7 +30,7 @@ function <T>peek(array: [T]): T {
 	return undefined;
 }
 
-export public class Parser extends InputProcessor {
+export public class Parser extends Processor {
 
 	@Inject
 	lexer: Lexer;
@@ -45,32 +44,29 @@ export public class Parser extends InputProcessor {
 	@Inject
 	documentHandler: DocumentHandler;
 	eolCount: int = 0;
-	indentLevel: int = 0;
-
+	
 	@Inject
 	injector: N4Injector;
 	// workaround because @PerInjectionSingleton not implemented!
-	resetState() {
-		this.processorState = this.injector.create(ProcessorState);
-		this.lexer.processorState = this.processorState;
-	}
-
-	parse(...inputSources: InputSource): Document {
-		this.lexer.addInputSource(inputSources);
-		this.resetState();
+	
+		
+	parse(inputSource: InputSource): Document {
+		this.init(this.injector.create(ProcessorState));
+		this.lexer.init(this.processorState);
+		this.processorState.setInputSource(inputSource);
 
 		let tokenEntry: IteratorEntry<Token>;
 		this.createElement(this.documentHandler);
 		let document = this.processorState.activeExtension.element as Document;
 
 		// Init parser
-		this.indentLevel = 0;
+		this.processorState.indentLevel = 0;
 		this.eolCount = 0;
 
 		// Do parse
 		while (!(tokenEntry = this.lexer.next()).done) {
 			let token = tokenEntry.value;
-
+			
 			switch (token.category) {
 				case Category.EOL:
 					this.closeWordElement();
@@ -80,10 +76,10 @@ export public class Parser extends InputProcessor {
 					if (this.eolCount == 2) { // new paragraph
 						this.popToBlock();
 					}
-					this.indentLevel = 0;
+					this.processorState.indentLevel = 0;
 					break;
 				case Category.INDENT:
-					this.indentLevel++;
+					this.processorState.indentLevel++;
 					this.eolCount = 0;
 					break;
 				case Category.CMD: case Category.CTRL:
@@ -96,7 +92,7 @@ export public class Parser extends InputProcessor {
 						} else {
 							this.ensureCDATAContainer();
 						}
-						activeExt.element = activeExt.extension.createElement(this.createExtensionContext());
+						activeExt.element = activeExt.extension.createElement(this.processorState.createExtensionContext());
 						this.processorState.activeExtensions.push(activeExt);
 					}
 					this.eolCount = 0;
@@ -155,18 +151,18 @@ export public class Parser extends InputProcessor {
 	popToBlock(): ActiveExtension<Block> {
 		while (this.processorState.activeExtensions) {
 			let activeExt = peek(this.processorState.activeExtensions);
-			if (activeExt.element instanceof Block && activeExt.element.indentLevel <= this.indentLevel) {
-				this.indentLevel = activeExt.element.indentLevel; // TODO ?
+			if (activeExt.element instanceof Block && activeExt.element.indentLevel <= this.processorState.indentLevel) {
+				this.processorState.indentLevel = activeExt.element.indentLevel; // TODO ?
 				return activeExt as ActiveExtension<Block>;
 			}
-			activeExt.extension.closeElement(activeExt.element, this.createExtensionContext());
+			activeExt.extension.closeElement(activeExt.element, this.processorState.createExtensionContext());
 			this.processorState.activeExtensions.pop();
 		}
 		throw new Error("Document missing");
 	}
 
 	createElement(extension: Extension) {
-		let element = extension.createElement(this.createExtensionContext());
+		let element = extension.createElement(this.processorState.createExtensionContext());
 		let activeExt = {
 				extension: extension,
 				element: element
@@ -176,13 +172,13 @@ export public class Parser extends InputProcessor {
 
 	closeElement() {
 		let activeElement = this.processorState.activeExtensions.pop();
-		activeElement.extension.closeElement(activeElement.element, this.createExtensionContext());
+		activeElement.extension.closeElement(activeElement.element, this.processorState.createExtensionContext());
 	}
 
 	ensureCDATAContainer(): ActiveExtension<CDATAContainer> {
 		let activeExt = this.processorState.activeExtension;
 		if (!(activeExt.element instanceof CDATAContainer)) {
-			if (this.indentLevel > activeExt.element.indentLevel) {
+			if (this.processorState.indentLevel > activeExt.element.indentLevel) {
 				this.createElement(this.preformattedHandler);
 			} else {
 				this.createElement(this.paragraphHandler);
@@ -197,17 +193,5 @@ export public class Parser extends InputProcessor {
 		}
 	}
 
-	createExtensionContext(): ExtensionContext {
-
-		let currentElement = this.processorState.activeExtension ? this.processorState.activeExtension.element :
-			undefined;
-		let indentLevel = currentElement ? Math.max(currentElement.indentLevel, this.indentLevel) : this.indentLevel;
-		return new ExtensionContext({
-				indentLevel: indentLevel,
-				currentElement: currentElement,
-				processorState: this.processorState,
-				inputSource: this.lexer.is
-			});
-	}
-
+	
 }

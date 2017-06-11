@@ -1,0 +1,8 @@
+import {HTMLFactory} from "HTMLNodes";
+
+
+export public class HTMLCreator {
+	@Inject factory: HTMLFactory
+	
+	
+}

@@ -9,7 +9,9 @@ export public class SPEX601_ATXHeadings extends ResourceBasedTest {
         	"levelsSeparatedByEOL",
         	"headingsWithContentSeparatedByEmptylines",
         	"headingsWithContentSeparatedByEOL",
-        	"headingsMixed_1"
+        	"noHeadings",
+        	"headingsMixed_1",
+        	"hashAtEnd"
         ].map(s=>[s]);
     }
     
