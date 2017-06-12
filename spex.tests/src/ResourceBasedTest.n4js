@@ -34,7 +34,6 @@ export interface IResourceBasedTest {
 		if (name.endsWith("Test")) {
 			name = name.substring(0, name.length-4);
 		}
-		name = name.charAt(0).toLowerCase() + name.substring(1, name.length);
 		return name;
 	}
 
