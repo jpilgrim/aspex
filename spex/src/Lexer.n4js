@@ -1,15 +1,15 @@
+import {Element} from "ASTNodes";
+import {ElementType} from "ASTNodes";
 import {Category} from "Category";
 import {CategorySwitch} from "Category";
 import {Extension} from "Extension";
 import {InputLocation} from "InputSource";
-import {Element} from "Nodes";
 import {Processor} from "Processor";
 import {ActiveExtension} from "ProcessorState";
 import {ProcessorState} from "ProcessorState";
 import {CharacterToken} from "Token";
 import {ExtensionToken} from "Token";
 import {Token} from "Token";
-import {ElementType} from "Nodes";
 
 export public class Lexer extends Processor implements Iterator<Token> {
 	

@@ -1,16 +1,19 @@
+import {Element} from "ASTNodes";
+import {ElementType} from "ASTNodes";
+import {Paragraph} from "ASTNodes";
+import {Category} from "Category";
 import {AbstractExtension} from "Extension";
 import {ExtensionContext} from "Extension";
 import {ExtensionEndMarker} from "Extension";
-import {Element} from "Nodes";
-import {ElementType} from "Nodes";
-import {Paragraph} from "Nodes";
-import {Category} from "Category";
+import {IdentityProvider} from "Extension";
+import {OutputProvider} from "Extension";
 
 
 export public class ATXHeading extends AbstractExtension {
 	
 	const ATXStartRegEx = /^#{1,6}\s/
 	const ATXEndRegEx = /^#+\s*$/
+	const HeadingProvider = new IdentityProvider("h1", "h2", "h3", "h4", "h5", "h6");
 
 	@Override
 	public get ctrlStart(): string {
@@ -72,6 +75,11 @@ export public class ATXHeading extends AbstractExtension {
 	public createElement(context: ExtensionContext): Element {
 		let level = context.processorState.currentToken.rawValue.length;
 		return new Paragraph("h" + level, context.indentLevel, context.currentElement);
+	}
+	
+	@Override
+	public get outputProvider(): OutputProvider {
+		return ATXHeading.HeadingProvider 
 	}
 	
 	

@@ -1,11 +1,12 @@
+import {Element} from "ASTNodes";
+import {ElementType} from "ASTNodes";
 import {CatcodeMap} from "Category";
 import {DefaultExtensions} from "DefaultExtensions";
 import {Extension} from "Extension";
 import {ExtensionContext} from "Extension";
 import {InputSource} from "InputSource";
-import {Element} from "Nodes";
-import {ElementType} from "Nodes";
 import {Token} from "Token";
+import {OutputProvider} from "Extension";
 
 export public interface ~ActiveExtension<T extends Element> {
 	extension: Extension;
@@ -57,6 +58,9 @@ export public class ProcessorState implements IProcessorState {
 	@Final
 	@Override
 	public activeExtensions: [ActiveExtension<Element>] = [];
+	
+	@Final
+	public outputProviders = new Map<string, OutputProvider>();
 
 	@Override
 	public indentLevel: int = 0;
@@ -82,8 +86,7 @@ export public class ProcessorState implements IProcessorState {
 		return new ExtensionContext({
 				indentLevel: indentLevel,
 				currentElement: currentElement,
-				processorState: this,
-				inputSource: this.inputSource
+				processorState: this
 			});
 	}
 
@@ -120,6 +123,12 @@ export public class ProcessorState implements IProcessorState {
 						this.ctrlInlineExtensions.set(ext.ctrlStart, extsWithStart);
 					}
 					extsWithStart.push(ext);
+				}
+			}
+			
+			if (ext.outputProvider) {
+				for (let name of ext.outputProvider.names) {
+					this.outputProviders.set(name, ext.outputProvider);
 				}
 			}
 		}
