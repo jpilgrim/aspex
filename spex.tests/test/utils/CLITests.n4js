@@ -79,7 +79,7 @@ export public class CLITests {
 	@Test
 	testIndexed() {
 		let cli = new CLI();
-		cli.indexed("ind", ArgType.STRING, 1);
+		cli.indexed("ind", ArgType.STRING, 1, "", true);
 		let obj = cli.parseArgs([], 0);
 		
 		Assert.isUndefined(obj);
@@ -88,7 +88,7 @@ export public class CLITests {
 	@Test
 	testIndexedSet() {
 		let cli = new CLI();
-		cli.indexed("ind", ArgType.STRING, 1);
+		cli.indexed("ind", ArgType.STRING, 1, "", true);
 		let obj = cli.parseArgs(["Hello"], 0);
 		
 		Assert.deepEqual(obj, { ind: "Hello"}, cli.help());
